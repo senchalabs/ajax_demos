@@ -1,0 +1,91 @@
+<!--
+Server Side PHP
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Allow-Headers: origin, X-Requested-With, Authorization, Content-Type');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        exit;
+    }
+
+   echo "<div class='response'>";
+    echo "Response text is in here";
+   echo "</div>";
+   exit;
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Document Response</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<style>
+		.response {
+			color:#000;
+			padding:10px;
+		}
+		.response:nth-child(even){
+			color:#333;
+			background-color: #ddd;
+		}
+	</style>
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.Panel',
+				'Ext.MessageBox',
+				'Ext.Button',
+				'Ext.form.Panel'
+			],
+
+			onReady: function() {
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/simple-document.php',
+					method: 'POST',
+					responseType:"document",
+					xhr2: true,
+					success: function(response) {
+						var dom = response.responseXML,
+							out = Ext.getCmp("output"),
+							el = dom.querySelector(".response");
+						out.innerElement.appendChild(el);
+					},
+					failure: function(response) {
+						console.log(response);
+					}
+				};
+
+				Ext.Viewport.add({
+					xtype:"panel",
+					layout:"vbox",
+					fullscreen:true,
+					items: [
+						{
+							xtype:"button",
+							text: "Request",
+							ui: 'confirm',
+							handler: function(){
+								Ext.Ajax.request(request);
+							}
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

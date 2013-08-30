@@ -1,0 +1,131 @@
+<!--
+Server Side PHP
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Allow-Headers: origin, X-Requested-With, Authorization, Content-Type');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        exit;
+    }
+
+    $path = tempnam(sys_get_temp_dir(), "tmp");
+    $out = fopen($path, "wb");
+    if ($out) {
+            $in = fopen("php://input", "rb");
+            if ($in) {
+                while ($buffer = fread($in, 4096))
+                fwrite($out, $buffer);
+            }
+            fclose($in);
+            fclose($out);
+    }
+
+    header("Content-Type: image/jpeg");
+    header("Content-Length: " . filesize($path));
+    $fp = fopen($path, 'rb');
+    fpassthru($fp);
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Upload - ArrayBuffer Response</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.Panel',
+				'Ext.Img',
+				'Ext.MessageBox',
+				'Ext.Button',
+				'Ext.ProgressIndicator',
+				'Ext.form.Panel',
+				'Ext.field.FileInput'
+			],
+
+			onReady: function() {
+				var progressIndicator = Ext.create("Ext.ProgressIndicator");
+
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/upload-arraybuffer.php',
+					method: 'POST',
+					responseType: "arraybuffer",
+					xhr2: true,
+					progress:progressIndicator,
+					success: function(response) {
+						var createObjectURL = window.URL && window.URL.createObjectURL ? window.URL.createObjectURL : webkitURL && webkitURL.createObjectURL ? webkitURL.createObjectURL : null;
+						if (createObjectURL) {
+							var image = Ext.Viewport.down("image");
+
+							var blob = new Blob([response.responseBytes], {type: response.getResponseHeader("Content-Type")});
+							var url = createObjectURL(blob);
+							image.setSrc(url);
+						}
+					},
+					failure: function(response) {
+						var out = Ext.getCmp("output");
+						out.setHtml(response.message);
+					}
+				};
+
+				Ext.Viewport.add(progressIndicator);
+				Ext.Viewport.add({
+					xtype:"panel",
+					layout:"vbox",
+					fullscreen:true,
+					items: [
+						{
+							xtype:"image",
+							height: 300,
+							width: 300,
+							style: {
+								"background-position": "0 0"
+							},
+							src: 'http://placehold.it/300x300'
+						},
+						{
+							xtype:"fileinput",
+							accept:"image/jpeg"
+						},
+						{
+							xtype:"button",
+							text: "Upload",
+							ui: 'confirm',
+							handler: function(){
+								var input = Ext.Viewport.down("fileinput").input;
+								var image = Ext.Viewport.down("image");
+								var files = input.dom.files;
+								if (files.length) {
+									request.binaryData = files[0];
+
+									//size is in bytes
+									if(request.binaryData.size <= 2097152) {
+										Ext.Ajax.request(request);
+									} else {
+										Ext.Msg.alert("JPG Must be less then 2MB");
+									}
+								}else {
+									Ext.Msg.alert("Please Select a JPG");
+								}
+							}
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

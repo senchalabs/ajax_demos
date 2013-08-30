@@ -1,0 +1,100 @@
+<!--
+Server Side PHP
+
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Allow-Headers: origin, X-Requested-With, Authorization, Content-Type');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        exit;
+    }
+
+    header("Content-Type: image/png");
+    $path = "./sencha-logo.png";
+    $fp = fopen($path, 'rb');
+    header("Content-Length: " . filesize($path));
+    fpassthru($fp);
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Simple Image Loader</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.Panel',
+				'Ext.Button',
+				'Ext.form.Panel'
+			],
+
+			onReady: function() {
+				var progressIndicator = Ext.create("Ext.ProgressIndicator");
+
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/simple-image.php',
+					responseType:"blob",
+					method: 'POST',
+					progress: progressIndicator,
+					xhr2: true,
+					success: function(response) {
+						var createObjectURL = window.URL && window.URL.createObjectURL ? window.URL.createObjectURL : webkitURL && webkitURL.createObjectURL ? webkitURL.createObjectURL : null;
+						if (createObjectURL) {
+							var image = Ext.Viewport.down("image");
+							var url = createObjectURL(response.responseBytes);
+							image.setSrc(url);
+						}
+					},
+					failure: function(response) {
+						var out = Ext.getCmp("output");
+						out.setHtml(response.message);
+					}
+				};
+
+				Ext.Viewport.add({
+					xtype:"panel",
+					layout:{
+						type: "vbox",
+						pack: "center",
+						align: "center"
+					},
+					fullscreen:true,
+					items: [
+						{
+							xtype:"image",
+							height: 400,
+							width: 250,
+							style: {
+								"background-position": "0 0"
+							},
+							src: 'http://placehold.it/250x400'
+						},
+						{
+							xtype:"button",
+							text: "Ajax",
+							ui: 'confirm',
+							handler: function(){
+								Ext.Ajax.request(request);
+							}
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

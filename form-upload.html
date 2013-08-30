@@ -1,0 +1,170 @@
+<!--
+Server Side PHP
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Allow-Headers: origin, X-Requested-With, Authorization, Content-Type');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        exit;
+    }
+
+    $files = array();
+    if(isset($_FILES['photos'])){
+        if(is_array($_FILES['photos']['size'])) {
+            for($i=0; $i<count($_FILES['photos']['size']);$i++){
+                if($_FILES['photos']['size'][$i] > 0){
+                    $photo = array(
+                        'name' => $_FILES['photos']['name'][$i],
+                        'size' => $_FILES['photos']['size'][$i],
+                        'type' => $_FILES['photos']['type'][$i]
+                    );
+                    array_push($files, $photo);
+                }
+            }
+        }
+    }
+
+     //Send Back JSON Response
+    header('Content-type: application/json');
+    $response = array(
+        'success' => true,
+        'message' => count($files) . ' Files Uploaded!'
+    );
+
+    $response["files"] = $files;
+    echo json_encode($response, true);
+    exit;
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Form Multi-Upload</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.form.Panel',
+				'Ext.Button',
+				'Ext.form.FieldSet',
+				'Ext.field.Text',
+				'Ext.field.File',
+				'Ext.Toolbar',
+				'Ext.ProgressIndicator'
+			],
+
+			onReady: function() {
+
+				// If we do not add the progress indicator to anything it will automatically
+				// be added to the viewport upon progress starting
+				var progressIndicator = Ext.create("Ext.ProgressIndicator");
+
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/form-upload.php',
+					method: 'POST',
+
+					// commenting this out will attempt to send this form though an iframe for the
+					// upload. When this is true new HTML5 FormData object is created to send all fields
+					xhr2: true,
+
+					progress: progressIndicator,
+
+					//Progress can also be a simple callback
+					/*progress: function(e) {
+						console.log((e.loaded / e.total) * 100);
+					 },*/
+
+					success: function(form, response) {
+						var out = Ext.getCmp("output");
+						if(response) {
+							out.setHtml(response.message);
+							for(var file in response.files) {
+								file = response.files[file];
+								out.setHtml(out.getHtml() + "<br/>-" + file.name +": " + file.size);
+							}
+						}
+					},
+					failure: function(form, response) {
+						var out = Ext.getCmp("output");
+						out.setHtml(response.message);
+					}
+				};
+
+
+
+				Ext.Viewport.add({
+					xtype:"formpanel",
+					layout:"vbox",
+					fullscreen:true,
+					items: [
+						{
+							xtype: 'fieldset',
+							title: 'My Uploader',
+							items: [
+								{
+									xtype: "textfield",
+									name: "firstName",
+									label: "First Name:"
+								},
+								{
+									xtype: "textfield",
+									name: "lastName",
+									label: "Last Name:"
+								},
+								{
+									xtype:"filefield",
+									label: "Select image(s):",
+									name: "photos",
+									accept:"image/jpeg",
+									multiple: true
+								}
+							]
+						},
+						{
+							xtype: 'toolbar',
+							layout: {
+								pack: 'center'
+							},
+							ui: 'plain',
+							items: [
+								{
+									xtype: 'button',
+									text: 'Submit',
+									ui: 'confirm',
+									handler: function() {
+										var form = Ext.Viewport.down("formpanel");
+										var input = Ext.Viewport.down("filefield").getComponent().input;
+										var files = input.dom.files;
+										for(var i = 0 ; i<files.length ; i++){
+											var file = files[i];
+											if(file.size > 2097152) {
+												Ext.Msg.alert("JPG Must be less then 2MB");
+												return;
+											}
+										}
+										form.submit(request);
+									}
+								}
+							]
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							padding: "10px",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

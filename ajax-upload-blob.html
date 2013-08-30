@@ -1,0 +1,153 @@
+<!--
+Server Side PHP
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    $path = tempnam(sys_get_temp_dir(), "tmp");
+    $out = fopen($path, "wb");
+    if ($out) {
+            $in = fopen("php://input", "rb");
+            if ($in) {
+                    while ($buffer = fread($in, 4096))
+                    fwrite($out, $buffer);
+            }
+            fclose($in);
+            fclose($out);
+    }
+
+    list($width, $height) = getimagesize($path);
+    if($width > $height) {
+        $newwidth = isset($_GET["width"]) ? $_GET["width"] : 100;
+        $newheight = $height * ($newwidth / $width);
+    } else {
+        $newheight = isset($_GET["height"]) ? $_GET["height"] : 100;;
+        $newwidth = $width * ($newheight / $height);
+    }
+
+    // Load
+    $thumb = imagecreatetruecolor($newwidth, $newheight);
+    $source = imagecreatefromjpeg($path);
+
+    imagecopyresized($thumb, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+
+    imagefilter($thumb, IMG_FILTER_GRAYSCALE);
+    imagefilter($thumb, IMG_FILTER_MEAN_REMOVAL);
+    $textcolor = imagecolorallocate($thumb, 255, 0, 0);
+    imagestring($thumb, 5, 0, 0, 'Sencha!', $textcolor);
+
+    $tmp = tempnam ("/tmp", "img");
+    $temp = fopen($tmp,"rb");
+
+    header("Content-Type: image/jpeg");
+    header("Content-Length: " . filesize($tmp));
+    unlink($tmp);
+
+    imagejpeg($thumb);
+    imagedestroy($thumb);
+    imagedestroy($source);
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Upload - Blob Response</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.Panel',
+				'Ext.Img',
+				'Ext.MessageBox',
+				'Ext.Button',
+				'Ext.ProgressIndicator',
+				'Ext.form.Panel',
+				'Ext.field.FileInput'
+			],
+
+			onReady: function() {
+				var progressIndicator = Ext.create("Ext.ProgressIndicator");
+
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/upload-blob.php',
+					method: 'POST',
+					responseType: "blob",
+					xhr2: true,
+					progress:progressIndicator,
+					success: function(response) {
+						var createObjectURL = window.URL && window.URL.createObjectURL ? window.URL.createObjectURL : webkitURL && webkitURL.createObjectURL ? webkitURL.createObjectURL : null;
+						if (createObjectURL) {
+							var image = Ext.Viewport.down("image");
+							var url = createObjectURL(response.responseBytes);
+							image.setSrc(url);
+						}
+					},
+					failure: function(response) {
+						var out = Ext.getCmp("output");
+						out.setHtml(response.message);
+					}
+				};
+
+				Ext.Viewport.add(progressIndicator);
+				Ext.Viewport.add({
+					xtype:"panel",
+					layout:"vbox",
+					fullscreen:true,
+					items: [
+						{
+							xtype:"image",
+							height: 300,
+							width: 300,
+							style: {
+								"background-position": "0 0"
+							},
+							src: 'http://placehold.it/300x300'
+						},
+						{
+							xtype:"fileinput",
+							accept:"image/jpeg"
+						},
+						{
+							xtype:"button",
+							text: "Upload",
+							ui: 'confirm',
+							handler: function(){
+								var input = Ext.Viewport.down("fileinput").input;
+								var image = Ext.Viewport.down("image");
+								var files = input.dom.files;
+								if (files.length) {
+									request.binaryData = files[0];
+
+									//size is in bytes
+									if(request.binaryData.size <= 2097152) {
+										request.params = {
+											width: image.getWidth(),
+											height: image.getHeight()
+										};
+										Ext.Ajax.request(request);
+									} else {
+										Ext.Msg.alert("JPG Must be less then 2MB");
+									}
+								}else {
+									Ext.Msg.alert("Please Select a JPG");
+								}
+							}
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

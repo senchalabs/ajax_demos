@@ -1,0 +1,112 @@
+<!--
+Server Side PHP
+
+<?php
+    header('Access-Control-Allow-Origin: *');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Allow-Headers: origin, X-Requested-With, Authorization, Content-Type');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        exit;
+    }
+
+    header('Content-type: application/json');
+    $response = array(
+        'success' => true,
+        'message' => 'Success: ' . $_POST["firstName"] . " " . $_POST["lastName"]
+    );
+    echo json_encode($response, true);
+?>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>XHR2 - Simple Form</title>
+
+	<script src="../../../../sencha-touch-debug.js"></script>
+	<link rel="stylesheet" href="../../../../resources/css/sencha-touch.css">
+
+	<script type="text/javascript">
+
+		Ext.setup({
+			requires: [
+				'Ext.form.Panel',
+				'Ext.Button',
+				'Ext.form.FieldSet',
+				'Ext.field.Text',
+				'Ext.Toolbar'
+			],
+
+			onReady: function() {
+				var request = {
+					url: 'http://sencha-xhr2-demos.herokuapp.com/post-json.php',
+					method: 'POST',
+
+					// commenting this out will simply send this form with normal params
+					// when this is true new HTML5 FormData object is created to send all fields
+					xhr2: true,
+
+					success: function(form, response) {
+						var out = Ext.getCmp("output");
+						if(response) out.setHtml(response.message);
+					},
+					failure: function(form, response) {
+						var out = Ext.getCmp("output");
+						out.setHtml(response.message);
+					}
+				};
+
+				Ext.Viewport.add({
+					xtype:"formpanel",
+					layout:"vbox",
+					fullscreen:true,
+					items: [
+						{
+							xtype: 'fieldset',
+							title: 'My Uploader',
+							items: [
+								{
+									xtype: "textfield",
+									name: "firstName",
+									label: "First Name:"
+								},
+								{
+									xtype: "textfield",
+									name: "lastName",
+									label: "Last Name:"
+								}
+							]
+						},
+						{
+							xtype: 'toolbar',
+							layout: {
+								pack: 'center'
+							},
+							ui: 'plain',
+							items: [
+								{
+									xtype: 'button',
+									text: 'Submit',
+									ui: 'confirm',
+									handler: function() {
+										var form = Ext.Viewport.down("formpanel");
+										form.submit(request);
+									}
+								}
+							]
+						},
+						{
+							xtype: "panel",
+							id: "output",
+							scrollable: true,
+							flex:1
+						}
+					]
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>
