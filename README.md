@@ -5,7 +5,7 @@ These examples require Sencha Touch 2.3.0 or later to run correctly.
 
 ## Demo Files
 
-<table style="width: 60%" border="1">
+<table style="width: 60%" border="0">
 <tr><th>File</th><th>Description</th></tr>
 <tr><td>ajax-simple.html</td><td>Ajax - Simple</td></tr>
 <tr><td>ajax-params.html</td><td>Ajax - Params</td></tr>
