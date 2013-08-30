@@ -3,17 +3,18 @@
 The examples in this site accompany the Sencha Touch XHR2 documentation. 
 These examples require Sencha Touch 2.3.0 or later to run correctly.
 
-Demo Files:
+## Demo Files
 
-<ul>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-simple.html">Ajax - Simple</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-params.html">Ajax - Params</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-formdata.html">Ajax - FormData</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-image.html">Ajax - Image</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-upload.html">Ajax - Upload</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-upload-arraybuffer.html">Ajax - Upload /w ArrayBuffer Response</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-upload-blob.html">Ajax - Upload /w Blob Response</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/ajax-document.html">Ajax - Document Response</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/form-simple.html">Form - Simple</a></li>
-<li><a href="https://github.com/senchalabs/ajax_demos/form-upload.html">Form - Multi-Upload</a></li>
-</ul>
+<table style="width: 60%" border="1">
+<tr><th>File</th><th>Description</th></tr>
+<tr><td>ajax-simple.html</td><td>Ajax - Simple</td></tr>
+<tr><td>ajax-params.html</td><td>Ajax - Params</td></tr>
+<tr><td>ajax-formdata.html</td><td>Ajax - FormData</td></tr>
+<tr><td>ajax-image.html</td><td>Ajax - Image</td></tr>
+<tr><td>ajax-upload.html</td><td>Ajax - Upload</td></tr>
+<tr><td>ajax-upload-arraybuffer.html</td><td>Ajax - Upload with ArrayBuffer Response</td></tr>
+<tr><td>ajax-upload-blob.html</td><td>Ajax - Upload with Blob Response</td></tr>
+<tr><td>ajax_demos/ajax-document.html</td><td>Ajax - Document Response</td></tr>
+<tr><td>ajax_demos/form-simple.html</td><td>Form - Simple</td></tr>
+<tr><td>ajax_demos/form-upload.html</td><td>Form - Multi-Upload</td></tr>
+</table>
